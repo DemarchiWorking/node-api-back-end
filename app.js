@@ -5,9 +5,10 @@ const bodyParser = require('body-parser');
 
 const rotaProdutos = require('./routes/produtos');
 const rotaPedidos = require('./routes/pedidos');
-
+const rotaUsuarios = require('./routes/usuarios');
 // da um console.log no servidor por cada requisicao
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 
 app.use('/produtos', rotaProdutos);
 app.use('/pedidos', rotaPedidos);
+app.use('/usuarios', rotaUsuarios);
 
 // Quando não encontra rota
 app.use((req, res, next) => {

@@ -6,17 +6,26 @@ const mysql = require('../mysql').pool;
 router.get('/',(req, res, next) => {
    mysql.getConnection((error, conn) => {
         if(error) { return res.status(500).send({ error: error}) }
-        conn.query(
-            'SELECT * FROM pedidos;',
+        conn.query(`SELECT  pedidos.id_pedidos,
+            pedidos.quantidade,
+            produtos.id_produtos,
+            produtos.nome,
+            produtos.preco
+            FROM pedidos
+            INNER JOIN produtos
+            ON produtos.id_produtos = pedidos.id_produtos;`,
             (error, result, fields) => {
                 if(error) { return res.status(500).send({ error: error}) }   
                 const response = {
-                    quantidade: result.length,
                     pedidos: result.map(pedido => {
                         return {
                             id_pedidos: pedido.id_pedidos,
-                            id_produtos: pedido.id_produtos,
                             quantidade: pedido.quantidade,
+                                produto: {
+                                    id_produtos: pedido.id_produtos,
+                                    nome: pedido.nome, // pq esse preco nao aparece
+                                    preco: pedido.preco
+                                },
                             request: {
                                 tipo: 'GET',
                                 descricao: 'Retorna os detalhes de um produto especifico',
@@ -36,9 +45,19 @@ router.get('/',(req, res, next) => {
 
 // Insere um PEDIDO
 router.post('/', (req, res, next) => {
+
     mysql.getConnection((error, conn) => {
-        if(error){ return res.status(500).send({ error: error }) } 
-        conn.query(
+        if(error) { return res.status(500).send({ error: error })}
+        conn.query('SELECT * FROM produtos WHERE id_produtos =?', 
+        [req.body.id_produto],
+        (error, result, field) => {
+            if(error) { return res.status(500).send({ error: error}) }
+            if(result.length == 0) {
+                return res.status(404).send({ 
+                    mensagem: ' produto nao encontrado'
+                })
+            }
+          conn.query(
             'INSERT INTO pedidos (id_produtos, quantidade) VALUES (?,?)',
             [req.body.id_produto, req.body.quantidade],
             (error, result, field) => {
@@ -60,6 +79,7 @@ router.post('/', (req, res, next) => {
                 return res.status(201).send(response);
             }
         )
+        })
     });
 });
 
@@ -102,9 +122,33 @@ router.get('/:id_pedido', (req, res, next) => {
 
 //EXCLUI UM PEDIDO
 router.delete('/', (req, res, next) => {
-    res.status(201).send({
-        mensagem: 'Pedido deletado '
-    })
+
+
+    mysql.getConnection((error, conn) => {
+        if(error){ return res.status(500).send({ error}) } 
+        conn.query(
+            `DELETE FROM pedidos 
+                WHERE id_pedidos = ?`, [req.body.id_pedido],
+            (error, result, field) => {
+                conn.release();
+                if(error) { return res.status(500).send({ error: error}) }
+                const response = {
+                    mensagem: 'Pedido removido com sucesso',
+                    request: {
+                        tipo: 'POST',
+                        descricao: 'Insere um Pedido',
+                        url: 'http://localhost:3000/produtos',
+                        body: {
+                            id_produto: 'Number',
+                            quantidade: 'Number' 
+                        }
+                    }
+                }
+                return res.status(202).send(response);
+            }
+        )
+    });
+
 })
 
 

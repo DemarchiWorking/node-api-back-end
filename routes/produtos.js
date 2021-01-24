@@ -1,10 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const login = require('../middleware/login');
+
+
+
+
+// PRODUTOS ESTÁ BUGADO, NÃO ESTA INSERINDO UPLOAD/IMAGEM: 
+// OBS: 1º NÃO ESTA CADASTRANDO O FORMATO DA IMAGEM E NEM VALIDANDO ".JPEG"/".PNG"
+
+
 
 
 // -- Retorna todos os produtos -- \\
-router.get('/',(req, res, next) => {
+router.get('/', (req, res, next) => {
+    //console.log(req.file);
     //  res.status(200).send({
     //      mensagem: ' Listando todos produtos'
     //   });
@@ -18,7 +30,7 @@ router.get('/',(req, res, next) => {
                     quantidade: result.length,
                     produtos: result.map(prod => {
                         return {
-                            id_produto: prod.id_produto,
+                            id_produtos: prod.id_produtos,
                             nome: prod.nome,
                             preco: prod.preco,
                             request: {
@@ -36,29 +48,34 @@ router.get('/',(req, res, next) => {
 });
 
 // --Insere um produto-- \\
-router.post('/', (req, res, next) => {
-
+router.post('/', upload.single('produto_imagem'), login, (req, res, next) => {
+    console.log(req.file);
         // const produto = {
         //    nome: req.body.nome,
         //    preco: req.body.preco
         //};
         // --   pegando a conexao mysql-- \\
-    mysql.getConnection((error, conn) => {
-        if(error){ return res.status(500).send({ error: error }) } 
+    mysql.getConnection((err, conn) => {
+        if(err){ return res.status(500).send({ error: error }) } 
         conn.query(
-            'INSERT INTO produtos (nome, preco) VALUES (?,?)',
-            [req.body.nome, req.body.preco],
+            'INSERT INTO produtos (nome, preco, imagem_produto) VALUES (?,?,?)',
+                [
+                    req.body.nome,
+                    req.body.preco,
+                    req.file.path
+                ],
             (error, result, field) => {
                 conn.release();
                 if(error) { return res.status(500).send({ error: error}) }
                 const response = {
                     mensagem: ' Produto inserido com sucesso',
                     produtoCriado: {
-                        id_produto: result.id_produto,
+                        id_produtos: result.id_produtos, // aqui
                         nome: req.body.nome,
                         preco: req.body.preco,
+                        imagem_produto: req.file.path,
                         request: {
-                            tipo: 'POST',
+                            tipo: 'GET',
                             descricao: 'Retorna todos os produtos',
                             url: 'http://localhost:3000/produtos'
                         }
@@ -69,6 +86,7 @@ router.post('/', (req, res, next) => {
         )
     });
 });
+
 
 // --RETORNA OS DADOS DE UM PRODUTO-- \\
 router.get('/:id_produto', (req, res, next) => {
