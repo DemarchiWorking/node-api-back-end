@@ -12,7 +12,7 @@ const login = require('../middleware/login');
 // OBS: 1º NÃO ESTA CADASTRANDO O FORMATO DA IMAGEM E NEM VALIDANDO ".JPEG"/".PNG"
 // NAO VOLTA O RESPONSE PARA O POSTMAN
 
-
+// FALTA FAZER O VIDEO 10 OU 11 - UPLOAD DE IMAGENS 
 
 
 // -- Retorna todos os produtos -- \\
@@ -49,8 +49,8 @@ router.get('/', (req, res, next) => {
 });
 
 // --Insere um produto-- \\
-router.post('/', upload.single('produto_imagem'), login, (req, res, next) => {
-    console.log(req.file);
+router.post('/', login.obrigatorio, upload.single('produto_imagem'), (req, res, next) => {
+    console.log(req.usuario);
         // const produto = {
         //    nome: req.body.nome,
         //    preco: req.body.preco
@@ -125,7 +125,7 @@ router.get('/:id_produto', (req, res, next) => {
 });
 
 // -- ALTERA UM PRODUTO-- \\
-router.patch('/', (req, res, next) => {
+router.patch('/',  login.obrigatorio, (req, res, next) => {
     //res.status(201).send({
     //    mensagem: 'Usando PATCH dentro da rota produtos'
     // })
@@ -166,7 +166,7 @@ router.patch('/', (req, res, next) => {
 });
 
 // --EXCLUI UM PRODUTO-- \\
-router.delete('/', (req, res, next) => {
+router.delete('/',  login.obrigatorio, (req, res, next) => {
     //res.status(201).send({
     //    mensagem: 'Usando o DELETE dentro da rota de produtos'
     //})
