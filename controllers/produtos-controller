@@ -1,0 +1,33 @@
+const mysql = require('../mysql').pool;
+
+
+exports.getProdutos = (req, res, next) => {
+    //console.log(req.file);
+    //  res.status(200).send({
+    //      mensagem: ' Listando todos produtos'
+    //   });
+    mysql.getConnection((error, conn) => {
+        if(error) { return res.status(500).send({ error: error}) }
+        conn.query(
+            'SELECT * FROM produtos;',
+            (error, result, fields) => {
+                if(error) { return res.status(500).send({ error: error}) }   
+                const response = {
+                    quantidade: result.length,
+                    produtos: result.map(prod => {
+                        return {
+                            id_produtos: prod.id_produtos,
+                            nome: prod.nome,
+                            preco: prod.preco,
+                            request: {
+                                tipo: 'GET',
+                                descricao: 'Retorna os detalhes de um produto especifico',
+                                url: 'http://localhost:3000/produtos/'+ prod.id_produtos
+                            }
+                        }
+                    })
+                }             
+                return res.status(200).send(response);
+            })
+        )
+    }

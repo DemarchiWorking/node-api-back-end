@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('../mysql').pool;
 const PedidosController = require('../controllers/pedidos-controller')
 // Retorna todos os PEDIDOS 
 router.get('/', PedidosController.getPedidos); // lógica é separada para outro arquivo pra facilitar manutencao e visualizacao

@@ -5,7 +5,7 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const login = require('../middleware/login');
 
-
+//const ProdutosController = require('../controllers/produtos-controler.jse') DESCOMENTAR E LER // falta apagar o código desnecessario e ativar o  exports.getProdutos() do controller!
 
 
 // PRODUTOS ESTÁ BUGADO, NÃO ESTA INSERINDO UPLOAD/IMAGEM: 
@@ -46,7 +46,7 @@ router.get('/', (req, res, next) => {
             }
         )
     })
-});
+}); // falta apagar o código desnecessario e ativar o  exports.getProdutos() do controller!
 
 // --Insere um produto-- \\
 router.post('/', login.obrigatorio, upload.single('produto_imagem'), (req, res, next) => {
