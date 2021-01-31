@@ -28,5 +28,3 @@ exports.opcional = ( req, res, next ) => {
     
 
 }
-//ALTEREI AQUI RETORNA
-//

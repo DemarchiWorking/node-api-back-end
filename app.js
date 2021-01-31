@@ -6,11 +6,15 @@ const bodyParser = require('body-parser');
 const rotaProdutos = require('./routes/produtos');
 const rotaPedidos = require('./routes/pedidos');
 const rotaUsuarios = require('./routes/usuarios');
+var cors = require('cors')
+
+
 // da um console.log no servidor por cada requisicao
 app.use(morgan('dev'));
 app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors()) // Use this after the variable declaration
 
 app.use((req, res, next) => {
     res.header('Acces-Control-Allow-Origin', '*');
