@@ -3,9 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 exports.cadastrarUsuario = (req, res, next) =>{
-    mysql.getConnection((err,conn) => {
+    mysql.getConnection((err, add) => {
         if(err) { return res.status(500).send({ error: error})}
-
         conn.query('SELECT * FROM usuarios WHERE email = ?',
         [req.body.email],
         (error, results) => {
@@ -13,7 +12,6 @@ exports.cadastrarUsuario = (req, res, next) =>{
             if(results.length >0) {
                 res.status(409).send({mensagem: ' Usuario ja cadastrado.'})
             }else{
-
                 bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                     if(errBcrypt){ return res.status(500).send({error: errBcrypt }) }
                     conn.query(
@@ -29,20 +27,14 @@ exports.cadastrarUsuario = (req, res, next) =>{
                                 email: req.body.email
                             }
                         }
-
+''
                         return res.status(201).send(response);
-                        
                     })
                 });
             }
         })
-
-        
-
     });
-
 }
-
 exports.Login = (req, res, next) => {
     mysql.getConnection((error, conn) => {
         if(error) { return res.status(500).send({error : error})}
@@ -51,11 +43,11 @@ exports.Login = (req, res, next) => {
             conn.release();
             if(error) { return res.status(500).send({ error : error })}
             if(results.length < 1) {
-                return res.status(401).send({ mensagem: 'Falha na Autenticação // APAGAR - 0 : (nao encontrado)'})
+                return res.status(401).send({ mensagem: 'Falha na Autenticação  1// APAGAR - 0 : (nao encontrado)'})
             }
             bcrypt.compare(req.body.senha, results[0].senha, (err, result) =>{  
                 if(err) {
-                    return res.status(401).send({mensagem: 'Falha na Authentication (DESCOBRIR)'})
+                      return res.status(401).send({mensagem: 'Falha na Authentication 2 (Pode ser varios erros ) ou  Error: data and hash arguments required'})
                 }
                 if(result){
                     const token = jwt.sign({
